@@ -22,7 +22,7 @@ const cardapioDoDia = {
 // Função para carregar os dados do cardápio no HTML
 function carregarCardapio() {
     // Almoço
-    document.getElementById('almoco-principal').textContent = cardapioDoDia.almoco.principal;
+    document.getElementById('almoco-P').textContent = cardapioDoDia.almoco.principal;
     document.getElementById('almoco-vegetariano').textContent = cardapioDoDia.almoco.vegetariano;
     document.getElementById('almoco-guarnicao').textContent = cardapioDoDia.almoco.guarnicao;
     document.getElementById('almoco-salada').textContent = cardapioDoDia.almoco.salada;
