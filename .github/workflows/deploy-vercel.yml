@@ -1,0 +1,68 @@
+# Nome do seu workflow, que aparecerá na aba "Actions" do GitHub
+name: Deploy to Vercel Production
+
+# Define o gatilho: este workflow roda a cada push na branch 'main'
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Define os jobs (tarefas) que o workflow irá executar
+jobs:
+  deploy:
+    # O tipo de máquina que o job vai rodar
+    runs-on: ubuntu-latest
+
+    # Define as variáveis de ambiente para todo o job, usando os secrets
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    # Os passos que compõem o job
+    steps:
+      # Passo 1: Faz o checkout do seu código do repositório para a máquina virtual
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # --- ETAPA DE TESTES E VALIDAÇÃO (Antes do Deploy) ---
+
+      # Passo 2: Teste de Qualidade do Código com Linter
+      - name: Run Linter for Code Quality
+        run: |
+          npm install
+          npx eslint . --ext .js --max-warnings 0
+      
+      # Passo 3: Teste de Validação do HTML com W3C
+      - name: Validate HTML with W3C
+        uses: W3C-Validator/html-validator-action@v1
+        with:
+          path: index.html
+
+      # --- ETAPA DE DEPLOY (Após passar nos testes) ---
+
+      # Passo 4: Instala a Vercel CLI
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      
+      # Passo 5: Puxa as informações do projeto Vercel
+      - name: Pull Vercel Project Information
+        run: vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+
+      # Passo 6: Faz o build do projeto
+      - name: Build Project
+        run: vercel build --token=$VERCEL_TOKEN
+
+      # Passo 7: Faz o deploy para o ambiente de produção da Vercel
+      - name: Deploy Project to Vercel
+        run: vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+
+      # --- ETAPA DE TESTE PÓS-DEPLOY ---
+
+      # Passo 8: Verifica se há links quebrados no site que foi para o ar
+      - name: Check for broken links
+        uses: lycheeverse/lychee-action@v1.8.0
+        with:
+          # ATENÇÃO: Substitua pela URL correta do seu site na Vercel!
+          args: "https://eng-soft-black.vercel.app/"
