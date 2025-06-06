@@ -83,7 +83,7 @@ jobs:
       # Passo 7: Deploy para Vercel
       # Utiliza a ação oficial da Vercel para fazer o deploy do projeto
       - name: Deploy to Vercel Production
-        uses: vercel/actions@v6 # Use a versão mais recente da ação Vercel (ou 'main' para a última)
+        uses: vercel/actions@main # Use a versão mais recente da ação Vercel (ou 'main' para a última)
         with:
           # Ação Vercel puxa automaticamente esses secrets do ambiente do job
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
