@@ -1,0 +1,64 @@
+# Nome do seu workflow
+name: Deploy to Vercel Production
+
+# Gatilhos
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+# Jobs
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # Variáveis de ambiente para o job
+    env:
+      GITHUB_ID: ${{ secrets.CLIENT_ID }}
+      GITHUB_SECRET: ${{ secrets.CLIENT_SECRET }}
+      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }} # Usará o URL fixo
+
+    steps:
+      # Passo 1: Checkout do código (versão atualizada)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Passo 2: Instala todas as dependências (Node e Vercel CLI) de uma vez
+      - name: Install Dependencies
+        run: npm install
+
+      # --- ETAPA DE TESTES E VALIDAÇÃO ---
+
+      # Passo 3: Roda o Linter (agora usando npx e as dependências já instaladas)
+      - name: Run Linter for Code Quality
+        run: npx eslint . --ext .js --max-warnings 0
+      
+      # Passo 4: Validação do HTML (com a linha corrigida)
+      - name: Validate HTML with W3C
+        uses: W3C/html-validator-action@v1
+        with:
+          path: index.html
+
+      # --- ETAPA DE DEPLOY ---
+
+      # Passo 5: Puxa as informações do projeto Vercel (comando simplificado)
+      - name: Pull Vercel Project Information
+        run: npx vercel pull --yes --environment=production
+
+      # Passo 6: Faz o build do projeto (comando simplificado)
+      - name: Build Project
+        run: npx vercel build
+
+      # Passo 7: Faz o deploy para produção (comando simplificado)
+      - name: Deploy Project to Vercel
+        run: npx vercel deploy --prebuilt --prod
+
+      # --- ETAPA DE TESTE PÓS-DEPLOY ---
+
+      # Passo 8: Verifica links quebrados no site em produção
+      - name: Check for broken links
+        uses: lycheeverse/lychee-action@v1.8.0
+        with:
+          # ATENÇÃO: Verifique se esta é a URL correta do seu site!
+          args: "https://eng-soft-black.vercel.app/"
