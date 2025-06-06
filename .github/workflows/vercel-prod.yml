@@ -19,10 +19,8 @@ jobs:
           node-version: '18' # ajuste conforme necessário
       
       # Instala dependências e faz build se necessário
-      - name: Install and Build
-        run: |
-          npm install
-          npm run build
+      - name: Install dependencies
+        run: npm install
       
       # Deploy na Vercel
       - name: Deploy to Vercel
