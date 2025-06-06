@@ -18,6 +18,7 @@ jobs:
       GITHUB_ID: ${{ secrets.CLIENT_ID }}
       GITHUB_SECRET: ${{ secrets.CLIENT_SECRET }}
       NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }} # Usará o URL fixo
+      VERCEL_PROJECT_ID: ${{ secrets.PROJECT_ID }}
 
     steps:
       # Passo 1: Checkout do código (versão atualizada)
