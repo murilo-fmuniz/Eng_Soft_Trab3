@@ -63,8 +63,6 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      ---
-
       # --- ETAPA DE TESTES E VALIDAÇÃO ---
 
       # Passo 3: Roda o Linter
@@ -79,7 +77,6 @@ jobs:
         with:
           path: index.html # Confirme se 'index.html' existe na raiz do seu projeto
 
-      ---
 
       # --- ETAPA DE DEPLOY ---
 
@@ -101,8 +98,6 @@ jobs:
           # Se você já fez o build localmente e quer apenas o deploy, use 'vercel-args: --prebuilt --prod'
           # (e tenha certeza de que os passos de build foram executados antes).
           # Para um fluxo padrão, geralmente é melhor deixar a Vercel fazer o build.
-
-      ---
 
       # --- ETAPA DE TESTE PÓS-DEPLOY ---
 
