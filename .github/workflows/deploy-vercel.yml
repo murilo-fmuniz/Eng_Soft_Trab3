@@ -15,9 +15,9 @@ jobs:
 
     # Variáveis de ambiente para o job
     env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      GITHUB_ID: ${{ secrets.CLIENT_ID }}
+      GITHUB_SECRET: ${{ secrets.CLIENT_SECRET }}
+      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }} # Usará o URL fixo
 
     steps:
       # Passo 1: Checkout do código (versão atualizada)
