@@ -2,7 +2,7 @@ name: Deploy to Vercel
 
 on:
   push:
-    branches: [ main, dev, master ]  # Adicione sua branch de desenvolvimento aqui
+    branches: [ main, master, dev ]  # Adicione sua branch de desenvolvimento aqui
   pull_request:
     branches: [ main, master ]
 
