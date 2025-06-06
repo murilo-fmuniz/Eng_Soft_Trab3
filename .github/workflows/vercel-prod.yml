@@ -2,27 +2,24 @@ name: Deploy to Vercel
 
 on:
   push:
-    branches: [ main, master, dev ]  # Adicione sua branch de desenvolvimento aqui
+    branches: [main]
   pull_request:
-    branches: [ main, master ]
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
-      # Configura Node.js se seu projeto precisar
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # ajuste conforme necessário
-      
-      # Instala dependências e faz build se necessário
-      - name: Install dependencies
+          node-version: '18'
+
+      - name: Install Dependencies
         run: npm install
-      
-      # Deploy na Vercel
+
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
         with:
@@ -30,5 +27,4 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           scope: ${{ secrets.VERCEL_ORG_ID }}
-          # Argumentos adicionais se necessário
           vercel-args: '--prod'
