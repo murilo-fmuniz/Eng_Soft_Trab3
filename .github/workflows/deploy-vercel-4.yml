@@ -17,8 +17,8 @@ jobs:
 
     # Variáveis de ambiente para o job
     env:
-      GITHUB_ID: ${{ secrets.GITHUB_ID }}
-      GITHUB_SECRET: ${{ secrets.GITHUB_SECRET }}
+      GITHUB_ID: ${{ secrets.CLIENT_ID }}
+      GITHUB_SECRET: ${{ secrets.CLIENT_SECRET }}
       NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
       NEXTAUTH_SECRET: ${{ secrets.SECRET }} # Ou SECRET, dependendo do seu código
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
