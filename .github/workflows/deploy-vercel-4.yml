@@ -5,7 +5,16 @@ name: Deploy to Vercel Production
 on:
   push:
     branches:
-      - master
+      # Usar 'main' é mais comum e recomendado do que 'master' hoje em dia.
+      # Se o seu branch principal for 'master', mantenha 'master'.
+      - main 
+    # Adicione esta condição para evitar que o workflow seja acionado
+    # por commits feitos pelo github-actions[bot], prevenindo loops.
+    # Isso é essencial se você tiver uma ação de auto-commit em outro lugar.
+    # Se este workflow *não* faz auto-commit, você pode remover esta linha.
+    if: github.actor != 'github-actions[bot]'
+
+  # Permite disparar o workflow manualmente pela interface do GitHub
   workflow_dispatch:
 
 # Jobs
@@ -15,45 +24,85 @@ jobs:
 
     # Variáveis de ambiente para o job
     env:
-      GITHUB_ID: ${{ secrets.CLIENT_ID }}
-      GITHUB_SECRET: ${{ secrets.CLIENT_SECRET }}
-      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }} # Usará o URL fixo
-      VERCEL_PROJECT_ID: ${{ secrets.PROJECT_ID }}
+      # Os nomes das variáveis GITHUB_ID e GITHUB_SECRET devem corresponder
+      # aos nomes que você definiu nos Secrets do GitHub (sem CLIENT_ prefixo).
+      GITHUB_ID: ${{ secrets.GITHUB_ID }}
+      GITHUB_SECRET: ${{ secrets.GITHUB_SECRET }}
+      
+      # NEXTAUTH_URL deve ser o URL de callback do seu GitHub OAuth App na Vercel.
+      # Certifique-se de que corresponde ao que você configurou.
+      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }} 
+      
+      # NEXT_PUBLIC_SECRET é a variável de ambiente para o segredo do NextAuth.js
+      # em produção. O nome geralmente é NEXTAUTH_SECRET (sem "PUBLIC_").
+      # Certifique-se de usar o nome correto que seu código Next.js espera.
+      # Se você estiver usando SECRET em seu código, use NEXT_PUBLIC_SECRET ou SECRET aqui.
+      # Para NextAuth.js, o nome padrão é NEXTAUTH_SECRET.
+      NEXTAUTH_SECRET: ${{ secrets.SECRET }} 
+      
+      # A Vercel usa VERCEL_ORG_ID e VERCEL_PROJECT_ID para identificar o projeto
+      # durante o deploy através da Vercel CLI.
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      
+      # Token de acesso da Vercel para autenticação segura.
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
     steps:
-      # Passo 1: Checkout do código (versão atualizada)
+      # Passo 1: Checkout do código
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Passo 2: Instala todas as dependências (Node e Vercel CLI) de uma vez
+      # Passo 2: Configura o ambiente Node.js e instala as dependências
+      - name: Setup Node.js and Install Dependencies
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Use a versão do Node.js que seu projeto precisa
+          cache: 'npm' # Habilita o cache de dependências npm para builds mais rápidos
+      
       - name: Install Dependencies
         run: npm install
 
+      ---
+
       # --- ETAPA DE TESTES E VALIDAÇÃO ---
 
-      # Passo 3: Roda o Linter (agora usando npx e as dependências já instaladas)
+      # Passo 3: Roda o Linter
       - name: Run Linter for Code Quality
         run: npx eslint . --ext .js --max-warnings 0
       
-      # Passo 4: Validação do HTML (com a linha corrigida)
+      # Passo 4: Validação do HTML com o W3C (se você tiver um `index.html` na raiz)
+      # Se seu projeto é Next.js, a validação HTML pode ser feita de forma diferente
+      # ou não ser tão relevante para a raiz do projeto.
       - name: Validate HTML with W3C
         uses: W3C/html-validator-action@v1
         with:
-          path: index.html
+          path: index.html # Confirme se 'index.html' existe na raiz do seu projeto
+
+      ---
 
       # --- ETAPA DE DEPLOY ---
 
-      # Passo 5: Puxa as informações do projeto Vercel (comando simplificado)
-      - name: Pull Vercel Project Information
-        run: npx vercel pull --yes --environment=production
+      # A Vercel CLI precisa ser instalada ou estar disponível no ambiente.
+      # A forma mais comum é usar a Vercel Action, que já cuida disso.
+      - name: Deploy to Vercel
+        uses: vercel/actions@v1 # Use a action oficial da Vercel
+        with:
+          # Estas variáveis são injetadas automaticamente pela Vercel Action
+          # a partir dos secrets que você definiu.
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          org-id: ${{ secrets.VERCEL_ORG_ID }}
+          project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          # Especifica o ambiente de produção
+          vercel-args: '--prod' 
+          
+          # Se você quiser buildar na Vercel, remova as etapas de 'vercel pull' e 'vercel build' anteriores.
+          # A Vercel Action irá fazer o build por padrão.
+          # Se você já fez o build localmente e quer apenas o deploy, use 'vercel-args: --prebuilt --prod'
+          # (e tenha certeza de que os passos de build foram executados antes).
+          # Para um fluxo padrão, geralmente é melhor deixar a Vercel fazer o build.
 
-      # Passo 6: Faz o build do projeto (comando simplificado)
-      - name: Build Project
-        run: npx vercel build
-
-      # Passo 7: Faz o deploy para produção (comando simplificado)
-      - name: Deploy Project to Vercel
-        run: npx vercel deploy --prebuilt --prod
+      ---
 
       # --- ETAPA DE TESTE PÓS-DEPLOY ---
 
@@ -61,5 +110,6 @@ jobs:
       - name: Check for broken links
         uses: lycheeverse/lychee-action@v1.8.0
         with:
-          # ATENÇÃO: Verifique se esta é a URL correta do seu site!
+          # ATENÇÃO: Verifique se esta é a URL **correta e fixa** do seu site Vercel!
+          # Será algo como https://nome-do-seu-projeto.vercel.app/
           args: "https://eng-soft-black.vercel.app/"
