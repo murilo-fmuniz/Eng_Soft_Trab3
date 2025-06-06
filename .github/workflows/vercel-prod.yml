@@ -2,9 +2,9 @@ name: Deploy to Vercel
 
 on:
   push:
-    branches: [ main ] # ou a branch que você usa para produção
+    branches: [ main, dev, master ]  # Adicione sua branch de desenvolvimento aqui
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   deploy:
