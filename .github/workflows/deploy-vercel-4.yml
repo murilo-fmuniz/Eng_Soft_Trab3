@@ -53,7 +53,6 @@ jobs:
       # este passo pode não ser relevante ou precisar de um caminho diferente.
       # Usando uma ação mais atualizada e popular para validação HTML.
       - name: Validate HTML with W3C
-        uses: validator/html-validator@latest # Usando a versão mais recente e popular
         with:
           url: https://eng-soft-black.vercel.app/ # Valida o HTML do seu site já deployado
           # Ou, se quiser validar um arquivo local:
@@ -66,7 +65,7 @@ jobs:
 
       # Passo 5: Faz o deploy para Vercel (USANDO AÇÃO CORRIGIDA)
       - name: Deploy Project to Vercel
-        uses: vercel/actions@v6 # Versão atualizada da Vercel Action.
+        uses: main # Versão atualizada da Vercel Action.
                                 # Você pode usar 'main' para a última versão beta/desenvolvimento
                                 # ou verificar a documentação oficial da Vercel para a versão estável mais recente.
         with:
