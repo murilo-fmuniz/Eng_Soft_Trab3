@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 # Define os jobs (tarefas) que o workflow irá executar
 jobs:
@@ -35,7 +36,7 @@ jobs:
       
       # Passo 3: Teste de Validação do HTML com W3C
       - name: Validate HTML with W3C
-        uses: W3C-Validator/html-validator-action@v1
+        uses: W3C-validator/html-validator-action@v1
         with:
           path: index.html
 
